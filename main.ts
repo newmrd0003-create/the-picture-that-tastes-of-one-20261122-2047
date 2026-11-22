@@ -1,6 +1,8 @@
 // One Ingredient — Strawberry.
 // A program that writes one picture of food to /output/entry.png: a single
 // ripe strawberry, macro, glossy, fresh — one ingredient, nothing else.
+// Refined render: a glistening droplet slides down the skin and a soft
+// highlight sits on the shoulder, so the berry reads fresh at a glance.
 // The picture is the program's payload: a PNG rendered during the build and
 // shipped beside this entrypoint as strawberry.png. The program validates it
 // against the competition's caps and writes it out byte-for-byte, so every
@@ -26,6 +28,12 @@ const width = png.readUInt32BE(16);
 const height = png.readUInt32BE(20);
 if (width > MAX_SIDE || height > MAX_SIDE) {
   throw new Error(`entry.png is ${width}x${height}, over the 1024x1024 cap`);
+}
+// The render must be truecolour (colour type 2 or 6): a paletted or greyscale
+// source would wash out the berry's reds and the droplet highlight.
+const colorType = png[25];
+if (colorType !== 2 && colorType !== 6) {
+  throw new Error(`entry.png colour type ${colorType}, expected truecolour 2 or 6`);
 }
 
 mkdirSync(OUTPUT_DIR, { recursive: true });
